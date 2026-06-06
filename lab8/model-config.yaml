@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vllm-config
+  namespace: lab8
+data:
+  MODEL_NAME: "Qwen2.5-Coder-32B-Instruct"
+  MAX_TOKENS: "4096"
+  GPU_MEMORY_FRACTION: "0.90"
+  TENSOR_PARALLEL_SIZE: "1"
+  database.conf: |
+    host=postgres.lab8.svc.cluster.local
+    port=5432
+    max_connections=100
+  litellm.yaml: |
+    model_list:
+      - model_name: qwen-coder
+        litellm_params:
+          model: openai/Qwen2.5-Coder-32B
+          api_base: http://localhost:8000

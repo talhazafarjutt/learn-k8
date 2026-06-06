@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: discovery-pod
+  namespace: lab4
+spec:
+  serviceAccountName: model-discovery-sa   # Use our ServiceAccount, not default
+  containers:
+  - name: discovery
+    image: bitnami/kubectl:latest           # Has kubectl built in for testing
+    command:
+    - sh
+    - -c
+    - |
+      echo "=== My identity ==="
+      cat /var/run/secrets/kubernetes.io/serviceaccount/namespace
+      echo ""
+      echo "=== Listing pods in lab4 ==="
+      kubectl get pods -n lab4
+      echo "=== Listing services in lab4 ==="
+      kubectl get services -n lab4
+      echo "=== Trying to list pods in kube-system (should FAIL) ==="
+      kubectl get pods -n kube-system || echo "DENIED as expected"
+      echo "=== Trying to delete a pod (should FAIL) ==="
+      kubectl delete pod discovery-pod -n lab4 || echo "DENIED as expected"
+      sleep 3600

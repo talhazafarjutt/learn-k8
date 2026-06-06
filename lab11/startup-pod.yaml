@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata: { name: slow-starter, namespace: lab11 }
+spec:
+  restartPolicy: Always
+  containers:
+  - name: slow
+    image: busybox:1.36
+    imagePullPolicy: IfNotPresent
+    args: ["/bin/sh", "-c", "sleep 40; touch /tmp/started; sleep 3600"]
+    startupProbe:
+      exec: { command: ["cat", "/tmp/started"] }
+      failureThreshold: 12
+      periodSeconds: 5         # 12 x 5 = 60s startup budget
+    livenessProbe:
+      exec: { command: ["cat", "/tmp/started"] }
+      periodSeconds: 5
+      failureThreshold: 3      # would kill at ~15s WITHOUT the startup probe

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crashing-app
+  namespace: lab6
+spec:
+  containers:
+  - name: app
+    image: busybox:1.36
+    command:
+    - sh
+    - -c
+    - |
+      echo "Starting application..."
+      echo "Loading config..."
+      sleep 2
+      echo "ERROR: database connection refused at db:5432"
+      echo "FATAL: cannot start without database"
+      exit 1

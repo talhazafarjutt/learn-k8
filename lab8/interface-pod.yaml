@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-pod
+  namespace: lab8
+spec:
+  containers:
+  - name: inference
+    image: busybox:1.36
+    command: ["sh", "-c", "while true; do sleep 30; done"]
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "64Mi"
+      limits:
+        cpu: "200m"
+        memory: "128Mi"
+
+    env:
+    - name: MODEL_NAME
+      valueFrom:
+        configMapKeyRef:
+          name: vllm-config      # which ConfigMap
+          key: MODEL_NAME        # which key inside it
+
+    - name: GPU_MEMORY_FRACTION
+      valueFrom:
+        configMapKeyRef:
+          name: vllm-config
+          key: GPU_MEMORY_FRACTION
+
+    - name: HF_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: api-credentials  # which Secret
+          key: HF_TOKEN          # which key inside it
+
+    - name: DATABASE_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: api-credentials
+          key: DATABASE_PASSWORD
+
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/vllm        # path inside container where files appear
+    - name: secret-volume
+      mountPath: /etc/secrets     # separate path for sensitive files
+      readOnly: true              # secrets should always be readOnly
+
+  volumes:
+  - name: config-volume
+    configMap:
+      name: vllm-config           # mount this ConfigMap as files
+  - name: secret-volume
+    secret:
+      secretName: api-credentials  # mount this Secret as files

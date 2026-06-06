@@ -1,0 +1,10 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-ingress
+  namespace: lab13
+spec:
+  podSelector: {}              # selects all pods in lab13
+  policyTypes:
+  - Ingress
+  # no ingress: block means "no traffic allowed"

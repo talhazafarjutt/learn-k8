@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main-gateway
+  namespace: lab2
+  annotations:
+    traefik.io/gateway.entrypoints: web   # THIS is the fix. Map to Traefik's "web" entrypoint.
+spec:
+  gatewayClassName: traefik
+  listeners:
+  - name: web
+    protocol: HTTP
+    port: 8000
+    allowedRoutes:
+      namespaces:
+        from: All
