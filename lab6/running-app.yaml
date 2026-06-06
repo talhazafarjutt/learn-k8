@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: running-app
+  namespace: lab6
+spec:
+  containers:
+  - name: app
+    image: busybox:1.36
+    command: ["sh", "-c", "while true; do sleep 30; done"]
+    env:
+    - name: DB_HOST
+      value: "postgres.lab6.svc.cluster.local"
+    - name: APP_ENV
+      value: "production"
+    volumeMounts:
+    - name: config
+      mountPath: /etc/config
+  volumes:
+  - name: config
+    configMap:
+      name: app-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: lab6
+data:
+  database.conf: |
+    host=postgres
+    port=5432
+    name=appdb
+  app.conf: |
+    log_level=info
+    max_connections=100

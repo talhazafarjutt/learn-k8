@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: no-limits
+  namespace: lab5
+spec:
+  containers:
+  - name: app
+    image: hashicorp/http-echo:latest
+    args:
+    - "-text=no limits set"
+    - "-listen=:5678"
+    # NO resources block at all
+    # This pod can consume unlimited CPU and memory
+    # In production this is a cluster risk

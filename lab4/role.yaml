@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role                    # Scoped to ONE namespace (lab4)
+metadata:
+  name: pod-reader-role       # Name of this permission set
+  namespace: lab4
+rules:
+  - apiGroups: [""]           # "" means core API group: pods, services, configmaps
+    resources: ["pods", "services"]   # These two resource types
+    verbs: ["get", "list", "watch"]   # Read-only. Cannot create or delete.
+
+  - apiGroups: ["apps"]       # Separate rule for apps group resources
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list"]

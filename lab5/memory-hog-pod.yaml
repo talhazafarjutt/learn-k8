@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: memory-hog
+  namespace: lab5
+spec:
+  containers:
+  - name: hog
+    image: busybox:1.36
+    command:
+    - sh
+    - -c
+    - |
+      echo "Allocating 200MB into RAM via /dev/shm..."
+      dd if=/dev/zero of=/dev/shm/fill bs=1M count=200
+      echo "Done. Sleeping."
+      sleep 3600
+    resources:
+      requests:
+        memory: "64Mi"
+      limits:
+        memory: "100Mi"    # process tries 200MB, limit is 100MB → OOMKilled

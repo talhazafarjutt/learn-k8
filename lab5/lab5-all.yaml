@@ -1,0 +1,64 @@
+# api-server — uses nginx which is already cached
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server
+  namespace: lab5
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-server
+  template:
+    metadata:
+      labels:
+        app: api-server
+    spec:
+      containers:
+      - name: api
+        image: nginx:alpine
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
+---
+# memory-hog — shell loop keeps writing to heap, WILL OOMKill
+apiVersion: v1
+kind: Pod
+metadata:
+  name: memory-hog
+  namespace: lab5
+spec:
+  containers:
+  - name: hog
+    image: busybox:1.36
+    command:
+    - sh
+    - -c
+    - |
+      echo "Starting memory allocation..."
+      data=""
+      while true; do
+        data="${data}$(head -c 1048576 /dev/zero | tr '\0' 'x')"
+        echo "Allocated 1MB more"
+      done
+    resources:
+      requests:
+        memory: "64Mi"
+      limits:
+        memory: "100Mi"
+---
+# no-limits — busybox, no resource block at all
+apiVersion: v1
+kind: Pod
+metadata:
+  name: no-limits
+  namespace: lab5
+spec:
+  containers:
+  - name: app
+    image: busybox:1.36
+    command: ["sh", "-c", "while true; do echo 'running'; sleep 30; done"]

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: broken-pod
+  namespace: lab8
+spec:
+  containers:
+  - name: app
+    image: busybox:1.36
+    command: ["sh", "-c", "sleep 3600"]
+    env:
+    - name: MODEL_NAME
+      valueFrom:
+        configMapKeyRef:
+          name: vllm-config       # this ConfigMap was deleted
+          key: MODEL_NAME

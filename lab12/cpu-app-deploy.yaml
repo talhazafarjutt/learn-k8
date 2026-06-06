@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-app
+  namespace: lab12
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: cpu-app }
+  template:
+    metadata:
+      labels: { app: cpu-app }
+    spec:
+      containers:
+      - name: app
+        image: busybox:1.36
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c", "sleep 3600"]
+        resources:
+          requests: { cpu: 100m, memory: 64Mi }
+          limits:   { cpu: 200m, memory: 128Mi }

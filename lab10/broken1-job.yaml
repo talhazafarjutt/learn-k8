@@ -1,0 +1,6 @@
+spec:
+  template:
+    spec:
+      restartPolicy: Always   # illegal on a Job
+      containers:
+      - {name: x, image: busybox:1.36}

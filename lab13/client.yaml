@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-same-ns
+  namespace: lab13
+  labels: { role: client }
+spec:
+  containers:
+  - name: c
+    image: busybox:1.36
+    imagePullPolicy: IfNotPresent
+    command: ["sleep", "3600"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-other-ns
+  namespace: lab13-client
+  labels: { role: client }
+spec:
+  containers:
+  - name: c
+    image: busybox:1.36
+    imagePullPolicy: IfNotPresent
+    command: ["sleep", "3600"]

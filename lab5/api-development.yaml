@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server
+  namespace: lab5
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-server
+  template:
+    metadata:
+      labels:
+        app: api-server
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo:latest
+        args:
+        - "-text=API response"
+        - "-listen=:5678"
+        ports:
+        - containerPort: 5678
+        resources:
+          requests:
+            cpu: "100m"       # needs 0.1 core minimum to start
+            memory: "64Mi"    # needs 64MB minimum to start
+          limits:
+            cpu: "200m"       # never allowed more than 0.2 core
+            memory: "128Mi"   # if it hits 128MB, pod is killed
