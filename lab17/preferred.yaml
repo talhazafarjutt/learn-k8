@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: zone-pref, namespace: lab17 }
+spec:
+  replicas: 6
+  selector: { matchLabels: { app: zone-pref } }
+  template:
+    metadata: { labels: { app: zone-pref } }
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - { key: gpu, operator: In, values: [v100] }
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - { key: zone, operator: In, values: [us-east-2] }
+      containers:
+      - name: app
+        image: busybox:1.36
+        imagePullPolicy: IfNotPresent
+        command: ["sleep", "3600"]
