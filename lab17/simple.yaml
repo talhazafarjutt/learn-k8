@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: gpu-simple, namespace: lab17 }
+spec:
+  replicas: 4
+  selector: { matchLabels: { app: gpu-simple } }
+  template:
+    metadata: { labels: { app: gpu-simple } }
+    spec:
+      nodeSelector:
+        gpu: v100
+      containers:
+      - name: app
+        image: busybox:1.36
+        imagePullPolicy: IfNotPresent
+        command: ["sleep", "3600"]

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-app
+  namespace: lab16
+spec:
+  replicas: 3
+  selector: { matchLabels: { app: gpu } }
+  template:
+    metadata: { labels: { app: gpu } }
+    spec:
+      tolerations:
+      - key: "gpu"
+        operator: "Equal"
+        value: "v100"
+        effect: "NoSchedule"
+      containers:
+      - name: app
+        image: busybox:1.36
+        imagePullPolicy: IfNotPresent
+        command: ["sleep", "3600"]

@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: normal-app
+  namespace: lab16
+spec:
+  replicas: 6
+  selector: { matchLabels: { app: normal } }
+  template:
+    metadata: { labels: { app: normal } }
+    spec:
+      containers:
+      - name: app
+        image: busybox:1.36
+        imagePullPolicy: IfNotPresent
+        command: ["sleep", "3600"]
