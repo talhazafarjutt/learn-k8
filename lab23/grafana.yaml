@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: lab23
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: grafana }
+  template:
+    metadata:
+      labels: { app: grafana }
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:11.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000        # Grafana's web UI port
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: "admin"             # sets the admin password. login: admin / admin
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "false"             # require login. set "true" to skip login (don't, in prod)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: lab23
+spec:
+  selector: { app: grafana }
+  ports:
+    - port: 3000
+      targetPort: 3000
+

@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fake-metrics
+  namespace: lab22
+data:
+  metrics: |
+    # HELP app_requests_total total requests handled
+    # TYPE app_requests_total counter
+    app_requests_total{code="200"} 100
+    app_requests_total{code="500"} 7
+    # HELP app_queue_depth requests waiting right now
+    # TYPE app_queue_depth gauge
+    app_queue_depth 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fake-app
+  namespace: lab22
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: fake-app }
+  template:
+    metadata:
+      labels: { app: fake-app }
+    spec:
+      containers:
+        - name: web
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command: ["httpd","-f","-p","8080","-h","/www"]   # serve /www on port 8080 in foreground
+          volumeMounts:
+            - name: page
+              mountPath: /www/metrics      # the file /www/metrics becomes the /metrics page
+              subPath: metrics
+      volumes:
+        - name: page
+          configMap:
+            name: fake-metrics
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fake-app
+  namespace: lab22
+spec:
+  selector: { app: fake-app }
+  ports:
+    - port: 8080
+      targetPort: 8080

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ticker
+  namespace: lab22
+spec:
+  selector: { app: ticker }
+  ports:
+    - port: 8080
+      targetPort: 8080
