@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logger
+  namespace: lab24
+  labels: { app: logger }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: logger }
+  template:
+    metadata:
+      labels: { app: logger }
+    spec:
+      containers:
+        - name: log
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              while true; do
+                echo "level=info msg=request handled status=200"
+                sleep 3
+                echo "level=error msg=upstream timeout status=500"
+                sleep 3
+              done

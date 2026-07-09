@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: lab23
+data:
+  datasources.yaml: |          # Grafana reads every file in the provisioning/datasources
+    apiVersion: 1              # folder at startup and creates these automatically.
+    datasources:               # apiVersion: 1 -> the provisioning file format version.
+      - name: Prometheus       # display name in the Grafana UI.
+        type: prometheus       # which query language Grafana speaks to it.
+        url: http://prometheus.lab22:9090   # cross-namespace: service.namespace:port.
+        access: proxy          # proxy = the Grafana SERVER makes the request.
+                               # set 'direct' -> your BROWSER would call the URL, which
+                               # fails here because the browser can't resolve cluster DNS.
+        isDefault: true        # preselected data source in Explore.
+      - name: Loki
+        type: loki
+        url: http://loki.lab24.svc.cluster.local:3100
+        access: proxy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: lab23
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: grafana }
+  template:
+    metadata:
+      labels: { app: grafana }
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:11.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: "admin"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "false"
+          volumeMounts:
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources   # the folder Grafana
+      volumes:                                                   # scans at startup.
+        - name: datasources
+          configMap:
+            name: grafana-datasources
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: lab23
+spec:
+  selector: { app: grafana }
+  ports:
+    - port: 3000
+      targetPort: 3000
