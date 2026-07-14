@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prom-config
+  namespace: lab22
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    rule_files:
+      - /etc/prometheus/alert-rules.yml
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: ['alertmanager.lab26:9093']
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      - job_name: 'ticker'
+        static_configs:
+          - targets: ['ticker:8080']
+  alert-rules.yml: |
+    groups:
+      - name: lab26-alerts
+        rules:
+          - alert: TickerDown
+            expr: up{job="ticker"} == 0
+            for: 1m
+            labels:
+              severity: page
+            annotations:
+              summary: "ticker target is down"
+              description: "Prometheus cannot scrape {{ $labels.job }} at {{ $labels.instance }}"
+          - alert: TickerStalled
+            expr: rate(ticks_total[2m]) < 0.1
+            for: 2m
+            labels:
+              severity: ticket
+            annotations:
+              summary: "ticker counter stopped moving"
